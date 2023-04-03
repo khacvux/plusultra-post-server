@@ -7,22 +7,25 @@ import { UpdatePostDto } from './dto/update-post.dto';
 export class PostService {
   constructor(private prisma: PrismaService) {}
   async create(dto: CreatePostDto) {
+    console.log(dto);
     const postCreated = await this.prisma.post.create({
       data: {
         caption: dto.caption,
         authorId: dto.authorId,
-
       },
     });
+
 
     const postMedia = await this.prisma.postMedia.create({
       data: {
         postId: postCreated.id,
-        mediaUrl: dto.media,
+        mediaUrl: dto.media.mediaUrl,
+        mediaKey: dto.media.keyFile,
       },
     });
 
-    return { postCreated, postMedia };
+    // return { postCreated, postMedia };
+    return 0;
   }
 
   findAll() {

@@ -232,9 +232,10 @@ model Post {
 }
 
 model PostMedia {
-  id         Int      @id @default(autoincrement())
-  postId     Int
-  mediaUrl   String
+  mediaKey String @id
+  postId   Int
+  mediaUrl String
+
   createdAt  DateTime @default(now())
   modifiedAt DateTime @updatedAt
 
