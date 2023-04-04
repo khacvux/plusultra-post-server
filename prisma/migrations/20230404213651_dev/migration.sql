@@ -1,12 +1,3 @@
-/*
-  Warnings:
-
-  - You are about to drop the `Notthing` table. If the table is not empty, all the data it contains will be lost.
-
-*/
--- DropTable
-DROP TABLE "Notthing";
-
 -- CreateTable
 CREATE TABLE "user" (
     "id" SERIAL NOT NULL,
@@ -175,32 +166,41 @@ CREATE TABLE "user_shop" (
 CREATE TABLE "post" (
     "id" SERIAL NOT NULL,
     "caption" TEXT,
-    "mediaId" INTEGER,
-    "commentId" INTEGER,
-    "sharedId" INTEGER,
-    "likedId" INTEGER,
     "authorId" INTEGER NOT NULL,
-    "productsId" INTEGER,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "modifiedAt" TIMESTAMP(3) NOT NULL,
-    "deletedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "post_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "post_media" (
+CREATE TABLE "PostLike" (
     "id" SERIAL NOT NULL,
+    "postId" INTEGER NOT NULL,
+    "userId" INTEGER NOT NULL,
+    "status" BOOLEAN NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "modifiedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "PostLike_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "post_media" (
+    "mediaKey" TEXT NOT NULL,
+    "postId" INTEGER NOT NULL,
     "mediaUrl" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "modifiedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "post_media_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "post_media_pkey" PRIMARY KEY ("mediaKey")
 );
 
 -- CreateTable
 CREATE TABLE "post_comment" (
     "id" SERIAL NOT NULL,
+    "postId" INTEGER NOT NULL,
+    "authorId" INTEGER NOT NULL,
     "comment" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "modifiedAt" TIMESTAMP(3) NOT NULL,
@@ -211,6 +211,7 @@ CREATE TABLE "post_comment" (
 -- CreateTable
 CREATE TABLE "post_shared" (
     "id" SERIAL NOT NULL,
+    "postId" INTEGER NOT NULL,
     "userId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "modifiedAt" TIMESTAMP(3) NOT NULL,
@@ -221,6 +222,7 @@ CREATE TABLE "post_shared" (
 -- CreateTable
 CREATE TABLE "post_with_products" (
     "id" SERIAL NOT NULL,
+    "postId" INTEGER NOT NULL,
     "productId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "modifiedAt" TIMESTAMP(3) NOT NULL,
@@ -270,18 +272,6 @@ CREATE UNIQUE INDEX "order_detail_paymentId_key" ON "order_detail"("paymentId");
 -- CreateIndex
 CREATE UNIQUE INDEX "user_shop_productId_key" ON "user_shop"("productId");
 
--- CreateIndex
-CREATE UNIQUE INDEX "post_mediaId_key" ON "post"("mediaId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "post_commentId_key" ON "post"("commentId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "post_sharedId_key" ON "post"("sharedId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "post_likedId_key" ON "post"("likedId");
-
 -- AddForeignKey
 ALTER TABLE "user_address" ADD CONSTRAINT "user_address_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
@@ -328,10 +318,13 @@ ALTER TABLE "user_shop" ADD CONSTRAINT "user_shop_id_fkey" FOREIGN KEY ("id") RE
 ALTER TABLE "post" ADD CONSTRAINT "post_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "post_media" ADD CONSTRAINT "post_media_id_fkey" FOREIGN KEY ("id") REFERENCES "post"("mediaId") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "PostLike" ADD CONSTRAINT "PostLike_postId_fkey" FOREIGN KEY ("postId") REFERENCES "post"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "post_comment" ADD CONSTRAINT "post_comment_id_fkey" FOREIGN KEY ("id") REFERENCES "post"("commentId") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "post_media" ADD CONSTRAINT "post_media_postId_fkey" FOREIGN KEY ("postId") REFERENCES "post"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "post_shared" ADD CONSTRAINT "post_shared_id_fkey" FOREIGN KEY ("id") REFERENCES "post"("sharedId") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "post_comment" ADD CONSTRAINT "post_comment_postId_fkey" FOREIGN KEY ("postId") REFERENCES "post"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "post_shared" ADD CONSTRAINT "post_shared_postId_fkey" FOREIGN KEY ("postId") REFERENCES "post"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
