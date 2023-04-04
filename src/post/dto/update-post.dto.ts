@@ -1,6 +1,12 @@
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
-import { CreatePostDto } from './create-post.dto';
 
-export class UpdatePostDto extends (CreatePostDto) {
-  id: number;
+export class UpdatePostDto  {
+  @IsString()
+  @IsNotEmpty()
+  caption: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  postId: number
 }

@@ -1,8 +1,9 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { PostService } from './post.service';
-import { CreatePostDto } from './dto/create-post.dto';
-import { UpdatePostDto } from './dto/update-post.dto';
+import { CreatePostDto, DeleteMediaFileDto, UpdatePostDto } from './dto';
+import { DeletePostDto } from './dto/delete-post.dto';
+
 
 @Controller()
 export class PostController {
@@ -13,23 +14,28 @@ export class PostController {
     return this.postService.create(createPostDto);
   }
 
-  @MessagePattern('findAllPost')
-  findAll() {
-    return this.postService.findAll();
+  @MessagePattern('all_post_of_user')
+  findAll(@Payload() userId: number) {
+    return this.postService.findAllPostOfUser(userId);
   }
 
-  @MessagePattern('findOnePost')
+  @MessagePattern('find_post')
   findOne(@Payload() id: number) {
     return this.postService.findOne(id);
   }
 
-  @MessagePattern('updatePost')
+  @MessagePattern('update_post_caption')
   update(@Payload() updatePostDto: UpdatePostDto) {
-    return
+    return this.postService.updatePostCaption(updatePostDto);
   }
 
-  @MessagePattern('removePost')
-  remove(@Payload() id: number) {
-    return this.postService.remove(id);
+  @MessagePattern('delete_media_file')
+  deleteMediaFile(@Payload() dto: DeleteMediaFileDto) {
+    return this.postService.deleteMediaFile(dto);
+  }
+
+  @MessagePattern('delete_post')
+  remove(@Payload() dto: DeletePostDto) {
+    return this.postService.remove(dto);
   }
 }

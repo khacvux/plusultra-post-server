@@ -1,46 +1,145 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreatePostDto } from './dto/create-post.dto';
-import { UpdatePostDto } from './dto/update-post.dto';
+import { CreatePostDto, DeleteMediaFileDto, UpdatePostDto } from './dto';
+import { DeletePostDto } from './dto/delete-post.dto';
 
 @Injectable()
 export class PostService {
   constructor(private prisma: PrismaService) {}
+
   async create(dto: CreatePostDto) {
-    console.log(dto);
-    const postCreated = await this.prisma.post.create({
-      data: {
-        caption: dto.caption,
-        authorId: dto.authorId,
-      },
-    });
+    try {
+      const postCreated = await this.prisma.post.create({
+        data: {
+          caption: dto.caption,
+          authorId: dto.authorId,
+        },
+      });
 
-
-    const postMedia = await this.prisma.postMedia.create({
-      data: {
-        postId: postCreated.id,
-        mediaUrl: dto.media.mediaUrl,
-        mediaKey: dto.media.keyFile,
-      },
-    });
-
-    // return { postCreated, postMedia };
-    return 0;
+      await Promise.all(
+        dto.mediaFiles.map(async (file) => {
+          await this.prisma.postMedia.create({
+            data: {
+              postId: postCreated.id,
+              mediaUrl: file.mediaUrl,
+              mediaKey: file.keyFile,
+            },
+          });
+        }),
+      );
+      return {
+        message: 'Post created',
+      };
+    } catch (error) {
+      return error;
+    }
   }
 
-  findAll() {
-    return `This action returns all post`;
+  async findAllPostOfUser(userId: number) {
+    try {
+      const posts = await this.prisma.post.findMany({
+        where: {
+          authorId: userId,
+        },
+        select: {
+          id: true,
+          authorId: true,
+          caption: true,
+          modifiedAt: true,
+          media: {
+            select: {
+              mediaKey: true,
+              mediaUrl: true,
+              modifiedAt: true,
+            },
+          },
+        },
+      });
+      return {
+        message: 'success',
+        data: posts,
+      };
+    } catch (error) {
+      return error;
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} post`;
+  async findOne(id: number) {
+    try {
+      const posts = await this.prisma.post.findUnique({
+        where: {
+          id,
+        },
+        select: {
+          id: true,
+          authorId: true,
+          caption: true,
+          modifiedAt: true,
+          media: {
+            select: {
+              mediaKey: true,
+              mediaUrl: true,
+              modifiedAt: true,
+            },
+          },
+        },
+      });
+      return {
+        message: 'success',
+        data: posts,
+      };
+    } catch (error) {
+      return error;
+    }
   }
 
-  update(id: number, updatePostDto: UpdatePostDto) {
-    return `This action updates a #${id} post`;
+  async updatePostCaption(dto: UpdatePostDto) {
+    try {
+      await this.prisma.post.update({
+        where: {
+          id: dto.postId,
+        },
+        data: {
+          caption: dto.caption,
+        },
+      });
+      return {
+        message: 'updated',
+      };
+    } catch (error) {
+      return error;
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} post`;
+  async deleteMediaFile(dto: DeleteMediaFileDto) {
+    try {
+      await this.prisma.postMedia.delete({
+        where: {
+          mediaKey: dto.fileKey,
+        },
+      });
+    } catch (error) {
+      return error;
+    }
+  }
+
+  async remove(payload: DeletePostDto) {
+    try {
+      await this.prisma.postMedia.deleteMany({
+        where: {
+          postId: payload.postId,
+        },
+      });
+      await this.prisma.post.delete({
+        where: {
+          id: payload.postId,
+        },
+      });
+      return {
+        message: 'success',
+      };
+    } catch (error) {
+      throw new Error('error');
+    }
   }
 }

@@ -11,6 +11,6 @@ export class CreatePostDto {
   authorId: number;
 
   @IsOptional()
-  media: IMedia;
+  mediaFiles: IMedia[];
 
 }
