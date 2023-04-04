@@ -226,7 +226,7 @@ model Post {
   user    User          @relation("user_post_fk", fields: [authorId], references: [id])
   media   PostMedia[]   @relation("media_post")
   comment PostComment[] @relation("comment_post")
-  shared  PostShared[]  @relation("shared_post")
+  shared  PostShare[]  @relation("shared_post")
 
   @@map("post")
 }
@@ -256,7 +256,7 @@ model PostComment {
   @@map("post_comment")
 }
 
-model PostShared {
+model PostShare {
   id         Int      @id @default(autoincrement())
   postId     Int
   userId     String
