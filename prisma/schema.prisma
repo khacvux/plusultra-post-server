@@ -243,7 +243,7 @@ model PostLike {
   modifiedAt DateTime @updatedAt
 
   post Post @relation("like_post", fields: [postId], references: [id])
-  user User @relation("user_likepost", fields: [userId], references: [id])
+  author User @relation("user_likepost", fields: [userId], references: [id])
 }
 
 model PostMedia {
@@ -269,7 +269,7 @@ model PostComment {
   modifiedAt DateTime @updatedAt
 
   post Post @relation("comment_post", fields: [postId], references: [id])
-  user User @relation("user_commentpost", fields: [authorId], references: [id])
+  author User @relation("user_commentpost", fields: [authorId], references: [id])
 
   @@map("post_comment")
 }

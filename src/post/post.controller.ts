@@ -4,7 +4,6 @@ import { PostService } from './post.service';
 import { CreatePostDto, DeleteMediaFileDto, UpdatePostDto } from './dto';
 import { DeletePostDto } from './dto/delete-post.dto';
 
-
 @Controller()
 export class PostController {
   constructor(private readonly postService: PostService) {}
@@ -22,6 +21,11 @@ export class PostController {
   @MessagePattern('find_post')
   findOne(@Payload() id: number) {
     return this.postService.findOne(id);
+  }
+
+  @MessagePattern('post_comments')
+  postComments(@Payload() postId: number) {
+    return this.postService.findCommentsOfPost(postId);
   }
 
   @MessagePattern('update_post_caption')

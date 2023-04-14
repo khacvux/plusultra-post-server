@@ -21,7 +21,7 @@ export class PostService {
           await this.prisma.postMedia.create({
             data: {
               postId: postCreated.id,
-              mediaUrl: file.mediaUrl,
+              mediaUrl: file.url,
               mediaKey: file.keyFile,
             },
           });
@@ -93,6 +93,30 @@ export class PostService {
     }
   }
 
+  async findCommentsOfPost(postId: number) {
+    try {
+      return await this.prisma.postComment.findMany({
+        where: {
+          postId,
+        },
+        select: {
+          comment: true,
+          id: true,
+          author: {
+            select: {
+              id: true,
+              email: true,
+              firstName: true,
+              lastName: true,
+            },
+          },
+        },
+      });
+    } catch (error) {
+      return error;
+    }
+  }
+
   async updatePostCaption(dto: UpdatePostDto) {
     try {
       await this.prisma.post.update({
@@ -113,7 +137,7 @@ export class PostService {
 
   async deleteMediaFile(dto: DeleteMediaFileDto) {
     try {
-      await this.prisma.postMedia.delete({
+      return await this.prisma.postMedia.delete({
         where: {
           mediaKey: dto.fileKey,
         },
