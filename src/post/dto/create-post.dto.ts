@@ -1,6 +1,5 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import IMedia from '../types/media.type';
-
 
 export class CreatePostDto {
   @IsOptional()
@@ -12,5 +11,13 @@ export class CreatePostDto {
 
   @IsOptional()
   mediaFiles: IMedia[];
+}
 
+export class SavePostPhotos {
+  @IsNotEmpty()
+  @IsNumber()
+  postId: number;
+
+  @IsNotEmpty()
+  mediaFiles: IMedia[];
 }

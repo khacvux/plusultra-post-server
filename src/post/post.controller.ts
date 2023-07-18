@@ -1,7 +1,12 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { PostService } from './post.service';
-import { CreatePostDto, DeleteMediaFileDto, UpdatePostDto } from './dto';
+import {
+  CreatePostDto,
+  DeleteMediaFileDto,
+  SavePostPhotos,
+  UpdatePostDto,
+} from './dto';
 import { DeletePostDto } from './dto/delete-post.dto';
 
 @Controller()
@@ -13,9 +18,21 @@ export class PostController {
     return this.postService.create(createPostDto);
   }
 
+  @MessagePattern('save_post_photos')
+  savePostPhotos(@Payload() savePostPhotosDto: SavePostPhotos) {
+    return this.postService.savePostPhotos(savePostPhotosDto);
+  }
+
   @MessagePattern('all_post_of_user')
-  findAll(@Payload() userId: number) {
-    return this.postService.findAllPostOfUser(userId);
+  findAll(
+    @Payload()
+    payload: {
+      userId: number;
+      authorId: number;
+      pagination: number;
+    },
+  ) {
+    return this.postService.findAllPostOfUser(payload);
   }
 
   @MessagePattern('find_post')
@@ -24,8 +41,10 @@ export class PostController {
   }
 
   @MessagePattern('post_comments')
-  postComments(@Payload() postId: number) {
-    return this.postService.findCommentsOfPost(postId);
+  postComments(
+    @Payload() payload: { postId: number; userId: number; pagination: number },
+  ) {
+    return this.postService.findCommentsOfPost(payload);
   }
 
   @MessagePattern('update_post_caption')
